@@ -163,15 +163,15 @@ void handleCommand(String input)
     Serial.println("AT+TX=<hexdata>     Send binary data.");
     Serial.println("AT+RX=<0|1>         Turn receiving on (1) or off (2).");
     Serial.println("AT+INFO             Output status information.");
-    Serial.println("AT+MODE=<NUM>       Output status information.");
-    Serial.println("                    " + String(RH_RF95::Bw125Cr45Sf128) + " medium range (default)");
-    Serial.println("                    Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on.");
-    Serial.println("                    " + String(RH_RF95::Bw500Cr45Sf128) + " fast+short range");
-    Serial.println("                    Bw = 500 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on.");
-    Serial.println("                    " + String(RH_RF95::Bw31_25Cr48Sf512) + " slow+long range");
-    Serial.println("                    Bw = 31.25 kHz, Cr = 4/8, Sf = 512chips/symbol, CRC on.");
-    Serial.println("                    " + String(RH_RF95::Bw125Cr48Sf4096) + " slow+long range");
-    Serial.println("                    Bw = 125 kHz, Cr = 4/8, Sf = 4096chips/symbol, CRC on.");
+    Serial.println("AT+MODE=<NUM>       Set modem config:");
+    Serial.println("                    " + String(RH_RF95::Bw125Cr45Sf128) + " - medium range (default)");
+    Serial.println("                     Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on.");
+    Serial.println("                    " + String(RH_RF95::Bw500Cr45Sf128) + " - fast+short range");
+    Serial.println("                     Bw = 500 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on.");
+    Serial.println("                    " + String(RH_RF95::Bw31_25Cr48Sf512) + " - slow+long range");
+    Serial.println("                     Bw = 31.25 kHz, Cr = 4/8, Sf = 512chips/symbol, CRC on.");
+    Serial.println("                    " + String(RH_RF95::Bw125Cr48Sf4096) + " - slow+long range");
+    Serial.println("                     Bw = 125 kHz, Cr = 4/8, Sf = 4096chips/symbol, CRC on.");
   }
   else if (input.startsWith("AT+INFO"))
   {

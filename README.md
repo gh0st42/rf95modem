@@ -19,15 +19,15 @@ AT+HELP             Print this usage information.
 AT+TX=<hexdata>     Send binary data.
 AT+RX=<0|1>         Turn receiving on (1) or off (2).
 AT+INFO             Output status information.
-AT+MODE=<NUM>       Output status information.
-                    0 medium range (default)
-                    Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on.
-                    1 fast+short range
-                    Bw = 500 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on.
-                    2 slow+long range
-                    Bw = 31.25 kHz, Cr = 4/8, Sf = 512chips/symbol, CRC on.
-                    3 slow+long range
-                    Bw = 125 kHz, Cr = 4/8, Sf = 4096chips/symbol, CRC on.
+AT+MODE=<NUM>       Set modem config:
+                    0 - medium range (default)
+                     Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on.
+                    1 - fast+short range
+                     Bw = 500 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on.
+                    2 - slow+long range
+                     Bw = 31.25 kHz, Cr = 4/8, Sf = 512chips/symbol, CRC on.
+                    3 - slow+long range
+                     Bw = 125 kHz, Cr = 4/8, Sf = 4096chips/symbol, CRC on.
 ```
 
 ### Sending data
