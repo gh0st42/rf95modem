@@ -48,10 +48,11 @@ status info:
 
 firmware:      0.1
 modem config:  medium range
+max pkt size:  251
 frequency:     433.00
 rx listener:   1
 
-rx bad:        1
+rx bad:        0
 rx good:       0
-tx good:       2
+tx good:       3
 ```
