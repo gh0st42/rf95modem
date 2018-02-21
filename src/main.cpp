@@ -10,8 +10,14 @@
 #define RFM95_RST 4
 #define RFM95_INT 3
 
+// for ttgo
+//#define RFM95_CS 18
+//#define RFM95_RST 14
+//#define RFM95_INT 26
+
 // Change to 434.0 or other frequency, must match RX's freq!
-#define RF95_FREQ 433.0
+//#define RF95_FREQ 868.0
+#define RF95_FREQ 434.0
 
 // Singleton instance of the radio driver
 RH_RF95 rf95(RFM95_CS, RFM95_INT);
@@ -92,6 +98,7 @@ void handleCommand(String input)
   if (input.startsWith("AT+TX="))
   {
     int cmdlen = 6;
+    input.toLowerCase();
     const char *instr = input.c_str();
     int plen = input.length() - cmdlen;
     int blen = plen / 2 + plen % 2;
@@ -127,7 +134,7 @@ void handleCommand(String input)
       {
         hilo = 0;
         j++;
-      }
+      }      
     }
     rf95.send((uint8_t *)buf, blen);
     rf95.waitPacketSent();
@@ -137,7 +144,8 @@ void handleCommand(String input)
     /*for (int i = 0; i < blen; i++) {
       //Serial.printf("%02X", buf[i]);
       Serial.print(buf[i], HEX);
-    }*/
+    }
+    Serial.println();*/
   }
   else if (input.startsWith("AT+MODE="))
   {
