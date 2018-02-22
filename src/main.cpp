@@ -3,7 +3,7 @@
 #include <SPI.h>
 #include <RH_RF95.h>
 
-#define VERSION   "0.1"
+#define VERSION "0.1"
 
 // for feather m0
 #define RFM95_CS 8
@@ -38,9 +38,10 @@ void setup()
 
   Serial.begin(9600);
   delay(100);
-  while (!Serial);
+  while (!Serial)
+    ;
 
-  Serial.println("rf95modem firmware (v" + String(VERSION) +")");
+  Serial.println("rf95modem firmware (v" + String(VERSION) + ")");
   Serial.setTimeout(2000);
 
   // manual reset
@@ -85,7 +86,11 @@ void onpacketreceived(uint8_t *buf, uint8_t len)
   Serial.print(",");
   for (int i = 0; i < len; i++)
   {
-    //Serial.printf("%02X", buf[i]);
+    //printf("%02X", buf[i]);
+    if (buf[i] < 0x10)
+    {
+      Serial.print("0");
+    }
     Serial.print(buf[i], HEX);
   }
   Serial.print(",");
@@ -134,7 +139,7 @@ void handleCommand(String input)
       {
         hilo = 0;
         j++;
-      }      
+      }
     }
     rf95.send((uint8_t *)buf, blen);
     rf95.waitPacketSent();
@@ -157,10 +162,13 @@ void handleCommand(String input)
   else if (input.startsWith("AT+RX="))
   {
     int number = input.substring(6).toInt();
-    if (number == 0 || number == 1) {
-      rx_listen = (byte) number;
+    if (number == 0 || number == 1)
+    {
+      rx_listen = (byte)number;
       Serial.println("+ Ok.");
-    } else {
+    }
+    else
+    {
       Serial.println("+ Failed. Invalid RX mode!");
     }
   }
@@ -186,7 +194,7 @@ void handleCommand(String input)
     Serial.println("status info:");
     Serial.println();
     Serial.println("firmware:      " + String(VERSION));
-    Serial.print(  "modem config:  ");
+    Serial.print("modem config:  ");
     switch (cur_modem_config)
     {
     case RH_RF95::Bw125Cr45Sf128:
