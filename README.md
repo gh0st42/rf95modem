@@ -1,15 +1,15 @@
 # rf95modem
 This project provides a modem firmware for arduino boards with a rf95 compatible radio module and a serial interface such as the adafruit feather m0 lora device or the heltec oled lora 32 modules. 
 
-The current default config is for adafruit feather m0 lora device with 433 MHz.
+The current default config is for device with 433 MHz.
 
 ## Installation 
 
 The recommended way for building and installing the radio firmware is to have a working installation of platformio (http://platformio.org/) on your system.
 
-*IMPORTANT* Edit platformio.ini to add your target platform and configure the radio pins in main.cpp!
+*IMPORTANT* Edit platformio.ini to add your target platform and configure the radio pins in the build flags!
 
-Install on your device using `pio run -t upload`
+Install on your device using `pio run -t upload -e heltec_wifi_lora_32`
 
 ## Usage
 
