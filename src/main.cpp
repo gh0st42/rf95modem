@@ -29,6 +29,7 @@ RH_RF95::ModemConfigChoice cur_modem_config = RH_RF95::Bw125Cr45Sf128;
 //RH_RF95::ModemConfigChoice cur_modem_config = RH_RF95::Bw125Cr48Sf4096;
 
 byte rx_listen = 1;
+float freq = RF95_FREQ;
 
 void setup()
 {
@@ -59,14 +60,14 @@ void setup()
   Serial.println("LoRa radio init OK!");
 
   // Defaults after init are 434.0MHz, modulation GFSK_Rb250Fd250, +13dbM
-  if (!rf95.setFrequency(RF95_FREQ))
+  if (!rf95.setFrequency(freq))
   {
     Serial.println("setFrequency failed");
     while (1)
       ;
   }
   Serial.print("Set Freq to: ");
-  Serial.println(RF95_FREQ);
+  Serial.println(freq);
 
   // Defaults after init are 434.0MHz, 13dBm, Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on
   rf95.setModemConfig(cur_modem_config);
@@ -172,12 +173,27 @@ void handleCommand(String input)
       Serial.println("+ Failed. Invalid RX mode!");
     }
   }
+  else if (input.startsWith("AT+FREQ="))
+  {
+    freq = input.substring(8).toFloat();
+
+    Serial.print("Set Freq to: ");
+    Serial.println(freq);
+
+    if (!rf95.setFrequency(freq))
+    {
+      Serial.println("setFrequency failed");
+      while (1)
+        ;
+    }
+  }
   else if (input.startsWith("AT+HELP"))
   {
     Serial.println("rf95modem help:");
     Serial.println("AT+HELP             Print this usage information.");
     Serial.println("AT+TX=<hexdata>     Send binary data.");
     Serial.println("AT+RX=<0|1>         Turn receiving on (1) or off (2).");
+    Serial.println("AT+FREQ=<freq>      Changes the frequency.");
     Serial.println("AT+INFO             Output status information.");
     Serial.println("AT+MODE=<NUM>       Set modem config:");
     Serial.println("                    " + String(RH_RF95::Bw125Cr45Sf128) + " - medium range (default)");
@@ -213,7 +229,7 @@ void handleCommand(String input)
       Serial.println("unknown modem config!");
     }
     Serial.println("max pkt size:  " + String(rf95.maxMessageLength()));
-    Serial.println("frequency:     " + String(RF95_FREQ));
+    Serial.println("frequency:     " + String(freq));
     Serial.println("rx listener:   " + String(rx_listen));
     Serial.println();
     Serial.println("rx bad:        " + String(rf95.rxBad()));
