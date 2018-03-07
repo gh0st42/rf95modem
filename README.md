@@ -18,6 +18,7 @@ List of commands:
 AT+HELP             Print this usage information.
 AT+TX=<hexdata>     Send binary data.
 AT+RX=<0|1>         Turn receiving on (1) or off (2).
+AT+FREQ=<freq>      Changes the frequency.
 AT+INFO             Output status information.
 AT+MODE=<NUM>       Set modem config:
                     0 - medium range (default)
