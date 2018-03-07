@@ -5,25 +5,12 @@
 
 #define VERSION "0.1"
 
-// for feather m0
-#define RFM95_CS 8
-#define RFM95_RST 4
-#define RFM95_INT 3
-
-// for ttgo
-//#define RFM95_CS 18
-//#define RFM95_RST 14
-//#define RFM95_INT 26
-
 // Change to 434.0 or other frequency, must match RX's freq!
 //#define RF95_FREQ 868.0
 #define RF95_FREQ 434.0
 
 // Singleton instance of the radio driver
 RH_RF95 rf95(RFM95_CS, RFM95_INT);
-
-// RX indicator LED
-#define LED 13
 
 RH_RF95::ModemConfigChoice cur_modem_config = RH_RF95::Bw125Cr45Sf128;
 //RH_RF95::ModemConfigChoice cur_modem_config = RH_RF95::Bw125Cr48Sf4096;
@@ -32,7 +19,10 @@ byte rx_listen = 1;
 
 void setup()
 {
+  #ifdef LED
   pinMode(LED, OUTPUT);
+  #endif // LED
+
   pinMode(RFM95_RST, OUTPUT);
   digitalWrite(RFM95_RST, HIGH);
 
@@ -245,10 +235,16 @@ void loop()
 
     if (rf95.recv(buf, &len))
     {
+      #ifdef LED
       digitalWrite(LED, HIGH);
+      #endif // LED
+
       onpacketreceived(buf, len);
       delay(10);
+
+      #ifdef LED
       digitalWrite(LED, LOW);
+      #endif // LED
     }
     else
     {
