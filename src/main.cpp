@@ -12,11 +12,46 @@
 // Singleton instance of the radio driver
 RH_RF95 rf95(RFM95_CS, RFM95_INT);
 
-RH_RF95::ModemConfigChoice cur_modem_config = RH_RF95::Bw125Cr45Sf128;
-//RH_RF95::ModemConfigChoice cur_modem_config = RH_RF95::Bw125Cr48Sf4096;
+// Singleton configuration struct
+struct RF95ModemConfig {
+  RH_RF95::ModemConfigChoice modem_config;
+  float frequency;
+  byte rx_listen;
+} conf = {RH_RF95::Bw125Cr45Sf128, RF95_FREQ, 1};
 
-byte rx_listen = 1;
-float freq = RF95_FREQ;
+void initRF95()
+{
+  // manual reset
+  digitalWrite(RFM95_RST, LOW);
+  delay(10);
+  digitalWrite(RFM95_RST, HIGH);
+  delay(10);
+
+  if (!rf95.init())
+  {
+    Serial.println("LoRa radio init failed");
+    while (1)
+      ;
+  }
+
+  // Defaults after init are 434.0MHz, modulation GFSK_Rb250Fd250, +13dbM
+  if (!rf95.setFrequency(conf.frequency))
+  {
+    Serial.println("setFrequency failed");
+    while (1)
+      ;
+  }
+  Serial.print("Set Freq to: ");
+  Serial.println(conf.frequency);
+
+  // Defaults after init are 434.0MHz, 13dBm, Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on
+  rf95.setModemConfig(conf.modem_config);
+
+  // The default transmitter power is 13dBm, using PA_BOOST.
+  // If you are using RFM95/96/97/98 modules which uses the PA_BOOST transmitter pin, then
+  // you can set transmitter powers from 5 to 23 dBm:
+  rf95.setTxPower(23, false);
+}
 
 void setup()
 {
@@ -35,37 +70,8 @@ void setup()
   Serial.println("rf95modem firmware (v" + String(VERSION) + ")");
   Serial.setTimeout(2000);
 
-  // manual reset
-  digitalWrite(RFM95_RST, LOW);
-  delay(10);
-  digitalWrite(RFM95_RST, HIGH);
-  delay(10);
-
-  while (!rf95.init())
-  {
-    Serial.println("LoRa radio init failed");
-    while (1)
-      ;
-  }
+  initRF95();
   Serial.println("LoRa radio init OK!");
-
-  // Defaults after init are 434.0MHz, modulation GFSK_Rb250Fd250, +13dbM
-  if (!rf95.setFrequency(freq))
-  {
-    Serial.println("setFrequency failed");
-    while (1)
-      ;
-  }
-  Serial.print("Set Freq to: ");
-  Serial.println(freq);
-
-  // Defaults after init are 434.0MHz, 13dBm, Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on
-  rf95.setModemConfig(cur_modem_config);
-
-  // The default transmitter power is 13dBm, using PA_BOOST.
-  // If you are using RFM95/96/97/98 modules which uses the PA_BOOST transmitter pin, then
-  // you can set transmitter powers from 5 to 23 dBm:
-  rf95.setTxPower(23, false);
 }
 
 void onpacketreceived(uint8_t *buf, uint8_t len)
@@ -146,8 +152,8 @@ void handleCommand(String input)
   else if (input.startsWith("AT+MODE="))
   {
     int number = input.substring(8).toInt();
-    cur_modem_config = static_cast<RH_RF95::ModemConfigChoice>(number);
-    rf95.setModemConfig(cur_modem_config);
+    conf.modem_config = static_cast<RH_RF95::ModemConfigChoice>(number);
+    rf95.setModemConfig(conf.modem_config);
     Serial.println("+ Ok.");
   }
   else if (input.startsWith("AT+RX="))
@@ -155,7 +161,7 @@ void handleCommand(String input)
     int number = input.substring(6).toInt();
     if (number == 0 || number == 1)
     {
-      rx_listen = (byte)number;
+      conf.rx_listen = (byte)number;
       Serial.println("+ Ok.");
     }
     else
@@ -165,17 +171,10 @@ void handleCommand(String input)
   }
   else if (input.startsWith("AT+FREQ="))
   {
-    freq = input.substring(8).toFloat();
+    conf.frequency = input.substring(8).toFloat();
 
-    Serial.print("Set Freq to: ");
-    Serial.println(freq);
-
-    if (!rf95.setFrequency(freq))
-    {
-      Serial.println("setFrequency failed");
-      while (1)
-        ;
-    }
+    // Reinitialize the RF95 to use the new frequency
+    initRF95();
   }
   else if (input.startsWith("AT+HELP"))
   {
@@ -201,7 +200,7 @@ void handleCommand(String input)
     Serial.println();
     Serial.println("firmware:      " + String(VERSION));
     Serial.print("modem config:  ");
-    switch (cur_modem_config)
+    switch (conf.modem_config)
     {
     case RH_RF95::Bw125Cr45Sf128:
       Serial.println("medium range");
@@ -219,8 +218,8 @@ void handleCommand(String input)
       Serial.println("unknown modem config!");
     }
     Serial.println("max pkt size:  " + String(rf95.maxMessageLength()));
-    Serial.println("frequency:     " + String(freq));
-    Serial.println("rx listener:   " + String(rx_listen));
+    Serial.println("frequency:     " + String(conf.frequency));
+    Serial.println("rx listener:   " + String(conf.rx_listen));
     Serial.println();
     Serial.println("rx bad:        " + String(rf95.rxBad()));
     Serial.println("rx good:       " + String(rf95.rxGood()));
@@ -243,7 +242,7 @@ void loop()
     input.toUpperCase();
     handleCommand(input);
   }
-  if (rx_listen == 1 && rf95.available())
+  if (conf.rx_listen == 1 && rf95.available())
   {
     // Should be a message for us now
     uint8_t buf[RH_RF95_MAX_MESSAGE_LEN];
