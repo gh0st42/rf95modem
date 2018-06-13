@@ -3,7 +3,12 @@
 #include <SPI.h>
 #include <RH_RF95.h>
 
-#define VERSION "0.1"
+#ifdef USE_DISPLAY
+#include <SSD1306.h>
+#include <OLEDDisplayUi.h>
+#endif  // USE_DISPLAY
+
+#define VERSION "0.2"
 
 // Change to 434.0 or other frequency, must match RX's freq!
 //#define RF95_FREQ 868.0
@@ -11,6 +16,12 @@
 
 // Singleton instance of the radio driver
 RH_RF95 rf95(RFM95_CS, RFM95_INT);
+
+#ifdef USE_DISPLAY
+// Singleton for display connection
+SSD1306 display(OLED_ADDRESS, OLED_SDA, OLED_SCL);
+OLEDDisplayUi ui(&display);
+#endif  // USE_DISPLAY
 
 // Singleton configuration struct
 struct RF95ModemConfig {
@@ -53,6 +64,57 @@ void initRF95()
   rf95.setTxPower(23, false);
 }
 
+#ifdef USE_DISPLAY
+void initDisplay()
+{
+  pinMode(OLED_RST, OUTPUT);
+  digitalWrite(OLED_RST, LOW);
+  delay(50);
+  digitalWrite(OLED_RST, HIGH);
+
+  display.init();
+  display.flipScreenVertically();
+  display.setTextAlignment(TEXT_ALIGN_LEFT);
+  display.setFont(ArialMT_Plain_10);
+
+  display.clear();
+}
+
+void printDisplay()
+{
+  String modeStr;
+  switch (conf.modem_config)
+  {
+  case RH_RF95::Bw125Cr45Sf128:
+    modeStr = String("MR");   break;
+  case RH_RF95::Bw125Cr48Sf4096:
+    modeStr = String("SLR"); break;
+  case RH_RF95::Bw31_25Cr48Sf512:
+    modeStr = String("SLR"); break;
+  case RH_RF95::Bw500Cr45Sf128:
+    modeStr = String("FSR"); break;
+  default:
+    modeStr = String("??");
+  }
+
+  display.clear();
+
+  display.drawString( 0,  0, "Frequency:");
+  display.drawString(70,  0, String(conf.frequency) + String(", ") + modeStr);
+  display.drawString( 0, 10, "Transmitted:");
+  display.drawString(70, 10, String(rf95.txGood()));
+  display.drawString( 0, 20, "Received:");
+  display.drawString(70, 20, String(rf95.rxGood()));
+  display.drawString( 0, 30, "Received bad:");
+  display.drawString(70, 30, String(rf95.rxBad()));
+  display.drawString( 0, 40, "RSSI:");
+  display.drawString(70, 40, String(rf95.lastRssi()));
+  display.drawString( 0, 50, "SNR:");
+  display.drawString(70, 50, String(rf95.lastSNR()));
+  display.display();
+}
+#endif  // USE_DISPLAY
+
 void setup()
 {
   #ifdef LED
@@ -72,12 +134,18 @@ void setup()
 
   initRF95();
   Serial.println("LoRa radio init OK!");
+
+  #ifdef USE_DISPLAY
+  initDisplay();
+  printDisplay();
+  #endif  // USE_DISPLAY
 }
 
 void onpacketreceived(uint8_t *buf, uint8_t len)
 {
   int lastRssi = rf95.lastRssi();
   int lastSNR = rf95.lastSNR();
+
   Serial.print("+RX ");
   Serial.print(len, DEC);
   Serial.print(",");
@@ -94,7 +162,12 @@ void onpacketreceived(uint8_t *buf, uint8_t len)
   Serial.print(lastRssi, DEC);
   Serial.print(",");
   Serial.println(lastSNR, DEC);
+
+  #ifdef USE_DISPLAY
+  printDisplay();
+  #endif  // USE_DISPLAY
 }
+
 void handleCommand(String input)
 {
   if (input.startsWith("AT+TX="))
@@ -148,6 +221,10 @@ void handleCommand(String input)
       Serial.print(buf[i], HEX);
     }
     Serial.println();*/
+
+    #ifdef USE_DISPLAY
+    printDisplay();
+    #endif  // USE_DISPLAY
   }
   else if (input.startsWith("AT+MODE="))
   {
@@ -155,6 +232,10 @@ void handleCommand(String input)
     conf.modem_config = static_cast<RH_RF95::ModemConfigChoice>(number);
     rf95.setModemConfig(conf.modem_config);
     Serial.println("+ Ok.");
+
+    #ifdef USE_DISPLAY
+    printDisplay();
+    #endif  // USE_DISPLAY
   }
   else if (input.startsWith("AT+RX="))
   {
@@ -175,6 +256,10 @@ void handleCommand(String input)
 
     // Reinitialize the RF95 to use the new frequency
     initRF95();
+
+    #ifdef USE_DISPLAY
+    printDisplay();
+    #endif  // USE_DISPLAY
   }
   else if (input.startsWith("AT+HELP"))
   {
