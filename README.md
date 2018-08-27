@@ -1,4 +1,4 @@
-# rf95modem
+# rf95modem - CAUTION! BLE TEST BRANCH - BUGGY, DEFUNCT AND UNDOCUMENTED!
 This project provides a modem firmware for arduino boards with a rf95 compatible radio module and a serial interface such as the adafruit feather m0 lora device or the heltec oled lora 32 modules. 
 
 The current default config is for device with 433 MHz.
