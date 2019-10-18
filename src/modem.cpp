@@ -2,20 +2,23 @@
 
 #include <SPI.h>
 #include <RH_RF95.h>
-
-void ble_print(String output);
+#ifdef BLE
+#include "ble.h"
+#endif
 
 void out_print(String text)
 {
     Serial.print(text);
+#ifdef BLE
     ble_print(text);
+#endif
 }
 void out_println(String text)
-{    
+{
     out_print(text + "\n");
 }
 
-#define VERSION "0.1"
+#define VERSION "0.2"
 
 // Change to 434.0 or other frequency, must match RX's freq!
 #define RF95_FREQ 868.1
@@ -75,7 +78,7 @@ void onpacketreceived(uint8_t *buf, uint8_t len)
 {
     int lastRssi = rf95.lastRssi();
     int lastSNR = rf95.lastSNR();
-    String output ="+RX ";
+    String output = "+RX ";
     output += String(len, DEC);
     output += ",";
     for (int i = 0; i < len; i++)
@@ -92,7 +95,6 @@ void onpacketreceived(uint8_t *buf, uint8_t len)
     output += ",";
     output += String(lastSNR, DEC);
     out_println(output);
-    
 }
 void handleCommand(String input)
 {
