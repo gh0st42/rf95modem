@@ -1,15 +1,25 @@
+// Copyright (c) 2018 Lars Baumgaertner
+
 #include <Arduino.h>
 
 #include <SPI.h>
 #include <RH_RF95.h>
-#ifdef BLE
+
+#include "modem.h"
+
+#ifdef USE_DISPLAY
+#include <SSD1306.h>
+#include <OLEDDisplayUi.h>
+#endif // USE_DISPLAY
+
+#ifdef USE_BLE
 #include "ble.h"
 #endif
 
 void out_print(String text)
 {
     Serial.print(text);
-#ifdef BLE
+#ifdef USE_BLE
     ble_print(text);
 #endif
 }
@@ -18,7 +28,11 @@ void out_println(String text)
     out_print(text + "\n");
 }
 
-#define VERSION "0.2"
+#ifdef USE_DISPLAY
+// Singleton for display connection
+SSD1306 display(OLED_ADDRESS, OLED_SDA, OLED_SCL);
+OLEDDisplayUi ui(&display);
+#endif // USE_DISPLAY
 
 // Change to 434.0 or other frequency, must match RX's freq!
 #define RF95_FREQ 868.1
@@ -55,24 +69,79 @@ void initRF95()
             ;
     }
 
-    // Defaults after init are 434.0MHz, modulation GFSK_Rb250Fd250, +13dbM
+    // Defaults after init are 868.1MHz, modulation GFSK_Rb250Fd250, +13dbM
     if (!rf95.setFrequency(conf.frequency))
     {
-        out_println("setFrequency failed");
+        out_println("Setting frequency failed");
         while (1)
             ;
     }
     out_print("Set Freq to: ");
     out_println(String(conf.frequency));
 
-    // Defaults after init are 434.0MHz, 13dBm, Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on
+    // Defaults after init are 868.1MHz, 13dBm, Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on
     rf95.setModemConfig(conf.modem_config);
 
-    // The default transmitter power is 13dBm, using PA_BOOST.
+    // The default transmitter power is 23dBm, using PA_BOOST.
     // If you are using RFM95/96/97/98 modules which uses the PA_BOOST transmitter pin, then
     // you can set transmitter powers from 5 to 23 dBm:
     rf95.setTxPower(23, false);
 }
+
+#ifdef USE_DISPLAY
+void initDisplay()
+{
+    pinMode(OLED_RST, OUTPUT);
+    digitalWrite(OLED_RST, LOW);
+    delay(50);
+    digitalWrite(OLED_RST, HIGH);
+
+    display.init();
+    display.flipScreenVertically();
+    display.setTextAlignment(TEXT_ALIGN_LEFT);
+    display.setFont(ArialMT_Plain_10);
+
+    display.clear();
+}
+
+void printDisplay()
+{
+    String modeStr;
+    switch (conf.modem_config)
+    {
+    case RH_RF95::Bw125Cr45Sf128:
+        modeStr = String("MR");
+        break;
+    case RH_RF95::Bw125Cr48Sf4096:
+        modeStr = String("SLR");
+        break;
+    case RH_RF95::Bw31_25Cr48Sf512:
+        modeStr = String("SLR");
+        break;
+    case RH_RF95::Bw500Cr45Sf128:
+        modeStr = String("FSR");
+        break;
+    default:
+        modeStr = String("??");
+    }
+
+    display.clear();
+
+    display.drawString(0, 0, "Frequency:");
+    display.drawString(70, 0, String(conf.frequency) + String(", ") + modeStr);
+    display.drawString(0, 10, "Transmitted:");
+    display.drawString(70, 10, String(rf95.txGood()));
+    display.drawString(0, 20, "Received:");
+    display.drawString(70, 20, String(rf95.rxGood()));
+    display.drawString(0, 30, "Received bad:");
+    display.drawString(70, 30, String(rf95.rxBad()));
+    display.drawString(0, 40, "RSSI:");
+    display.drawString(70, 40, String(rf95.lastRssi()));
+    display.drawString(0, 50, "SNR:");
+    display.drawString(70, 50, String(rf95.lastSNR()));
+    display.display();
+}
+#endif // USE_DISPLAY
 
 void onpacketreceived(uint8_t *buf, uint8_t len)
 {
@@ -95,6 +164,10 @@ void onpacketreceived(uint8_t *buf, uint8_t len)
     output += ",";
     output += String(lastSNR, DEC);
     out_println(output);
+
+#ifdef USE_DISPLAY
+    printDisplay();
+#endif // USE_DISPLAY
 }
 void handleCommand(String input)
 {
@@ -147,11 +220,9 @@ void handleCommand(String input)
         output += " bytes.";
         out_println(output);
 
-        /*for (int i = 0; i < blen; i++) {
-      //Serial.printf("%02X", buf[i]);
-      Serial.print(buf[i], HEX);
-    }
-    Serial.println();*/
+#ifdef USE_DISPLAY
+        printDisplay();
+#endif // USE_DISPLAY
     }
     else if (input.startsWith("AT+MODE="))
     {
@@ -159,6 +230,9 @@ void handleCommand(String input)
         conf.modem_config = static_cast<RH_RF95::ModemConfigChoice>(number);
         rf95.setModemConfig(conf.modem_config);
         out_println("+ Ok.");
+#ifdef USE_DISPLAY
+        printDisplay();
+#endif // USE_DISPLAY
     }
     else if (input.startsWith("AT+RX="))
     {
@@ -179,6 +253,10 @@ void handleCommand(String input)
 
         // Reinitialize the RF95 to use the new frequency
         initRF95();
+
+#ifdef USE_DISPLAY
+        printDisplay();
+#endif // USE_DISPLAY
     }
     else if (input.startsWith("AT+HELP"))
     {

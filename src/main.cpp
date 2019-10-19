@@ -1,13 +1,8 @@
-/*
-    Video: https://www.youtube.com/watch?v=oCMOYS71NIU
-    Based on Neil Kolban example for IDF: https://github.com/nkolban/esp32-snippets/blob/master/cpp_utils/tests/BLE%20Tests/SampleNotify.cpp
-    Ported to Arduino ESP32 by Evandro Copercini
-    Modified by Lars Baumgaertner to act as bluetooth LoRa modem
+// Copyright (c) 2018 Lars Baumgaertner
 
-*/
 #include <Arduino.h>
 
-#ifdef BLE
+#ifdef USE_BLE
 #include "ble.h"
 #endif
 
@@ -15,19 +10,34 @@
 
 void setup()
 {
+#ifdef LED
+    pinMode(LED, OUTPUT);
+#endif // LED
+
     //Serial.begin(115200);
     Serial.begin(9600);
-#ifdef BLE
+    delay(100);
+    Serial.setTimeout(2000);
+
+#ifdef USE_BLE
     init_ble();
 #endif
+    out_println("rf95modem firmware (v" + String(VERSION) + ")");
+    out_println("Copyright (c) 2018, 2019 Lars Baumgaertner");
+
     modem_setup();
     initRF95();
+    out_println("LoRa radio init OK!");
+#ifdef USE_DISPLAY
+    initDisplay();
+    printDisplay();
+#endif // USE_DISPLAY
 }
 
 void loop()
 {
     modem_loop_tick();
-#ifdef BLE
+#ifdef USE_BLE
     ble_loop_tick();
 #endif
 }

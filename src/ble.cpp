@@ -1,4 +1,6 @@
-#ifdef BLE
+// Copyright (c) 2018 Lars Baumgaertner
+
+#ifdef USE_BLE
 #include <Arduino.h>
 #include "modem.h"
 #include "ble.h"
