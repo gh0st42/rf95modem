@@ -13,6 +13,10 @@ Install on your device using `pio run -t upload -e heltec_wifi_lora_32_ble`
 
 Optionally activate display support: `pio run -t upload -e heltec_wifi_lora_32_display_ble`
 
+## BLE notes
+
+Currently anyone can connect to the BLE service, it is all plaintext. One characteristic is published for sending commands and one is there to make output available via notifications. At the moment any `AT+TX` data is sent directly, according to the specs BLE payload should not exceed 20 bytes. So far, we have also successfully sent data of 100 bytes or more via BLE depending on the platforms involved.
+
 ## Usage
 
 List of commands:

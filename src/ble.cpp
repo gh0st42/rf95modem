@@ -90,6 +90,9 @@ void init_ble()
 
 void ble_print(String output)
 {
+    // Sends the whole string at once, according to standard BLE messages should be <20bytes
+    // So far communication with iPhone and Raspberry Pi worked also with longer messages
+    // TODO: add automatic splitting of longer inputs
     pTxCharacteristic->setValue((uint8_t *)output.c_str(), output.length());
     pTxCharacteristic->notify();
     delay(10);
