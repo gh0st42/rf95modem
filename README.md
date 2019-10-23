@@ -63,3 +63,20 @@ rx bad:        0
 rx good:       0
 tx good:       3
 ```
+
+
+### Acknowledging this work
+
+If you use this code in academic publications, please cite the following paper:
+
+```
+@INPROCEEDINGS{baumgaertner2018monitoring,
+ author={L. {Baumgärtner} and A. {Penning} and P. {Lampe} and B. {Richerzhagen} and R. {Steinmetz} and B. {Freisleben}},
+ booktitle={2018 IEEE Global Humanitarian Technology Conference (GHTC)},
+ title={Environmental Monitoring Using Low-Cost Hardware and Infrastructureless Wireless Communication},
+ year={2018},
+ pages={1-8},
+ doi={10.1109/GHTC.2018.8601883},
+ month={Oct},
+}
+```
