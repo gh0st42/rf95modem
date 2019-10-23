@@ -1,4 +1,4 @@
-# rf95modem - CAUTION! BLE + SERIAL TEST BRANCH - (probably) BUGGY, (maybe) DEFUNCT AND UNDOCUMENTED!
+# rf95modem MCU firmware
 This project provides a modem firmware for arduino boards with a rf95 compatible radio module and a serial interface such as the adafruit feather m0 lora device or the heltec oled lora 32 modules. This branch requires a BLE capable device such as the heltec ESP32 lora boards.
 
 The current default config is for device with 868.1 MHz. The default can be changed in `src/modem.cpp` with the following line: `#define RF95_FREQ 868.1`
@@ -13,11 +13,11 @@ Install on your device using `pio run -t upload -e heltec_wifi_lora_32_ble`
 
 Optionally activate display support: `pio run -t upload -e heltec_wifi_lora_32_display_ble`
 
-## BLE notes
+## BLE notes - CAUTION! BLE functionality - (probably) BUGGY, (maybe) DEFUNCT AND UNDOCUMENTED!
 
 Currently anyone can connect to the BLE service, it is all plaintext. One characteristic is published for sending commands and one is there to make output available via notifications. At the moment any `AT+TX` data is sent directly, according to the specs BLE payload should not exceed 20 bytes. So far, we have also successfully sent data of 100 bytes or more via BLE depending on the platforms involved.
 
-## Usage
+## Modem Usage
 
 List of commands:
 ```
