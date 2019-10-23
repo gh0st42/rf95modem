@@ -1,7 +1,7 @@
-# rf95modem
-This project provides a modem firmware for arduino boards with a rf95 compatible radio module and a serial interface such as the adafruit feather m0 lora device or the heltec oled lora 32 modules. 
+# rf95modem MCU firmware
+This project provides a modem firmware for arduino boards with a rf95 compatible radio module and a serial interface such as the adafruit feather m0 lora device or the heltec oled lora 32 modules. This branch requires a BLE capable device such as the heltec ESP32 lora boards.
 
-The current default config is for device with 433 MHz.
+The current default config is for device with 868.1 MHz. The default can be changed in `src/modem.cpp` with the following line: `#define RF95_FREQ 868.1`
 
 ## Installation 
 
@@ -9,9 +9,15 @@ The recommended way for building and installing the radio firmware is to have a 
 
 *IMPORTANT* Edit platformio.ini to add your target platform and configure the radio pins in the build flags!
 
-Install on your device using `pio run -t upload -e heltec_wifi_lora_32`
+Install on your device using `pio run -t upload -e heltec_wifi_lora_32_ble`
 
-## Usage
+Optionally activate display support: `pio run -t upload -e heltec_wifi_lora_32_display_ble`
+
+## BLE notes - CAUTION! BLE functionality - (probably) BUGGY, (maybe) DEFUNCT AND UNDOCUMENTED!
+
+Currently anyone can connect to the BLE service, it is all plaintext. One characteristic is published for sending commands and one is there to make output available via notifications. At the moment any `AT+TX` data is sent directly, according to the specs BLE payload should not exceed 20 bytes. So far, we have also successfully sent data of 100 bytes or more via BLE depending on the platforms involved.
+
+## Modem Usage
 
 List of commands:
 ```
@@ -33,7 +39,7 @@ AT+MODE=<NUM>       Set modem config:
 
 ### Sending data
 
-`AT+TX=414141` sends a packet with AAA as content. Maximum packet size may vary depending on radio chip. 
+`AT+TX=414141` sends a packet with `AAA` as content. Maximum packet size may vary depending on radio chip. 
 
 ### Receiving data
 
