@@ -19,6 +19,8 @@ Currently anyone can connect to the BLE service, it is all plaintext. One charac
 
 ## Modem Usage
 
+The default serial speed is set to 115200 (`src/main.cpp` *line 17*).
+
 List of commands:
 ```
 AT+HELP             Print this usage information.

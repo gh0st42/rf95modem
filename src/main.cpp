@@ -14,8 +14,8 @@ void setup()
   pinMode(LED, OUTPUT);
 #endif // LED
 
-  //Serial.begin(115200);
-  Serial.begin(9600);
+  Serial.begin(115200);
+  //Serial.begin(9600);
   delay(100);
   Serial.setTimeout(2000);
 
