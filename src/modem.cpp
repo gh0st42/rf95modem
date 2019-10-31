@@ -260,7 +260,7 @@ void handleCommand(String input)
     }
     else if (input.startsWith("AT+HELP"))
     {
-        out_println("rf95modem help:");
+        out_println("+HELP:");
         out_println("AT+HELP             Print this usage information.");
         out_println("AT+TX=<hexdata>     Send binary data.");
         out_println("AT+RX=<0|1>         Turn receiving on (1) or off (2).");
@@ -275,13 +275,15 @@ void handleCommand(String input)
         out_println("                     Bw = 31.25 kHz, Cr = 4/8, Sf = 512chips/symbol, CRC on.");
         out_println("                    " + String(RH_RF95::Bw125Cr48Sf4096) + " - slow+long range");
         out_println("                     Bw = 125 kHz, Cr = 4/8, Sf = 4096chips/symbol, CRC on.");
+        out_println("+OK");
     }
     else if (input.startsWith("AT+INFO"))
     {
-        Serial.println("status info:");
+        Serial.println("+STATUS:");
         Serial.println();
         Serial.println("firmware:      " + String(VERSION));
         Serial.print("modem config:  ");
+        Serial.print(String(conf.modem_config) + " | ");
         switch (conf.modem_config)
         {
         case RH_RF95::Bw125Cr45Sf128:
@@ -307,6 +309,7 @@ void handleCommand(String input)
         Serial.println("rx good:       " + String(rf95.rxGood()));
         Serial.println("tx good:       " + String(rf95.txGood()));
         //rf95.printRegisters();
+        out_println("+OK");
     }
     else
     {

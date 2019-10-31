@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-#define VERSION "0.3"
+#define VERSION "0.4"
 
 void out_print(String text);
 void out_println(String text);
