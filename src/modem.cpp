@@ -64,7 +64,7 @@ void initRF95()
 
     if (!rf95.init())
     {
-        out_println("LoRa radio init failed");
+        out_println("+FAIL: LoRa radio init");
         while (1)
             ;
     }
@@ -72,11 +72,11 @@ void initRF95()
     // Defaults after init are 868.1MHz, modulation GFSK_Rb250Fd250, +13dbM
     if (!rf95.setFrequency(conf.frequency))
     {
-        out_println("Setting frequency failed");
+        out_println("+FAIL: Setting frequency");
         while (1)
             ;
     }
-    out_print("Set Freq to: ");
+    out_print("+FREQ: ");
     out_println(String(conf.frequency));
 
     // Defaults after init are 868.1MHz, 13dBm, Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on
@@ -229,7 +229,7 @@ void handleCommand(String input)
         int number = input.substring(8).toInt();
         conf.modem_config = static_cast<RH_RF95::ModemConfigChoice>(number);
         rf95.setModemConfig(conf.modem_config);
-        out_println("+ Ok.");
+        out_println("+OK");
 #ifdef USE_DISPLAY
         printDisplay();
 #endif // USE_DISPLAY
@@ -240,11 +240,11 @@ void handleCommand(String input)
         if (number == 0 || number == 1)
         {
             conf.rx_listen = (byte)number;
-            out_println("+ Ok.");
+            out_println("+OK");
         }
         else
         {
-            out_println("+ Failed. Invalid RX mode!");
+            out_println("+FAIL: Invalid RX mode!");
         }
     }
     else if (input.startsWith("AT+FREQ="))
@@ -310,7 +310,7 @@ void handleCommand(String input)
     }
     else
     {
-        String output = "Unknown command: ";
+        String output = "+FAIL: Unknown command: ";
         output += input;
         out_println(output);
     }
