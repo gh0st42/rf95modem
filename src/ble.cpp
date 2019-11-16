@@ -37,6 +37,7 @@ class MyCallbacks : public BLECharacteristicCallbacks
     {
         std::string rxValue = pCharacteristic->getValue();
 
+        // TODO: reassembly of short frames to lines
         if (rxValue.length() > 0)
         {
             Serial.println("*********");
@@ -88,14 +89,29 @@ void init_ble()
     Serial.println("Waiting a client connection to notify...");
 }
 
-void ble_print(String output)
+void ble_print(String output, byte bcb)
 {
     // Sends the whole string at once, according to standard BLE messages should be <20bytes
     // So far communication with iPhone and Raspberry Pi worked also with longer messages
-    // TODO: add automatic splitting of longer inputs
-    pTxCharacteristic->setValue((uint8_t *)output.c_str(), output.length());
-    pTxCharacteristic->notify();
-    delay(10);
+    if (bcb == 1 || output.length() < 20)
+    {
+        pTxCharacteristic->setValue((uint8_t *)output.c_str(), output.length());
+        pTxCharacteristic->notify();
+        delay(10);
+    }
+    else
+    {
+        //String outputbuf = output;
+        while (output.length() != 0)
+        {
+            unsigned int send_bytes = min((unsigned)20, output.length()); // is this needed?
+            String send_data = output.substring(0, send_bytes);           // is substring safe? bounds checking?
+            output = output.substring(send_bytes);
+            pTxCharacteristic->setValue((uint8_t *)send_data.c_str(), send_data.length());
+            pTxCharacteristic->notify();
+            delay(10);
+        }
+    }
 }
 
 void ble_loop_tick()

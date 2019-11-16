@@ -8,6 +8,6 @@
 
 void init_ble();
 void ble_loop_tick();
-void ble_print(String output);
+void ble_print(String output, byte bcb);
 
 #endif

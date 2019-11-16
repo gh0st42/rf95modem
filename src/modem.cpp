@@ -16,18 +16,6 @@
 #include "ble.h"
 #endif
 
-void out_print(String text)
-{
-    Serial.print(text);
-#ifdef USE_BLE
-    ble_print(text);
-#endif
-}
-void out_println(String text)
-{
-    out_print(text + "\n");
-}
-
 #ifdef USE_DISPLAY
 // Singleton for display connection
 SSD1306 display(OLED_ADDRESS, OLED_SDA, OLED_SCL);
@@ -47,7 +35,20 @@ struct RF95ModemConfig
     RH_RF95::ModemConfigChoice modem_config;
     float frequency;
     byte rx_listen;
-} conf = {RH_RF95::Bw125Cr45Sf128, RF95_FREQ, 1};
+    byte big_ble_frames;
+} conf = {RH_RF95::Bw125Cr45Sf128, RF95_FREQ, 1, 0};
+
+void out_print(String text)
+{
+    Serial.print(text);
+#ifdef USE_BLE
+    ble_print(text, conf.big_ble_frames);
+#endif
+}
+void out_println(String text)
+{
+    out_print(text + "\n");
+}
 
 void modem_setup()
 {
@@ -247,6 +248,21 @@ void handleCommand(String input)
             out_println("+FAIL: Invalid RX mode!");
         }
     }
+#ifdef USE_BLE
+    else if (input.startsWith("AT+BFB="))
+    {
+        int number = input.substring(6).toInt();
+        if (number == 0 || number == 1)
+        {
+            conf.big_ble_frames = (byte)number;
+            out_println("+OK");
+        }
+        else
+        {
+            out_println("+FAIL: Invalid BFB mode!");
+        }
+    }
+#endif
     else if (input.startsWith("AT+FREQ="))
     {
         conf.frequency = input.substring(8).toFloat();
@@ -264,6 +280,9 @@ void handleCommand(String input)
         out_println("AT+HELP             Print this usage information.");
         out_println("AT+TX=<hexdata>     Send binary data.");
         out_println("AT+RX=<0|1>         Turn receiving on (1) or off (2).");
+#ifdef USE_BLE
+        out_println("AT+BFB=<0|1>        Turn send Big Fine BLE-Frames on (1) or off (2).");
+#endif
         out_println("AT+FREQ=<freq>      Changes the frequency.");
         out_println("AT+INFO             Output status information.");
         out_println("AT+MODE=<NUM>       Set modem config:");
@@ -304,6 +323,7 @@ void handleCommand(String input)
         Serial.println("max pkt size:  " + String(rf95.maxMessageLength()));
         Serial.println("frequency:     " + String(conf.frequency));
         Serial.println("rx listener:   " + String(conf.rx_listen));
+        Serial.println("BFB:           " + String(conf.big_ble_frames));
         Serial.println();
         Serial.println("rx bad:        " + String(rf95.rxBad()));
         Serial.println("rx good:       " + String(rf95.rxGood()));
@@ -350,7 +370,7 @@ void modem_loop_tick()
         }
         else
         {
-            out_println("+ RX failed");
+            out_println("+RX failed");
         }
     }
 }
