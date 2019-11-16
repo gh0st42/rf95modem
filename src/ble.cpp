@@ -11,6 +11,8 @@ bool deviceConnected = false;
 bool oldDeviceConnected = false;
 uint8_t txValue = 0;
 
+String receive_buffer = "";
+
 // See the following for generating UUIDs:
 // https://www.uuidgenerator.net/
 
@@ -37,7 +39,6 @@ class MyCallbacks : public BLECharacteristicCallbacks
     {
         std::string rxValue = pCharacteristic->getValue();
 
-        // TODO: reassembly of short frames to lines
         if (rxValue.length() > 0)
         {
             Serial.println("*********");
@@ -47,12 +48,20 @@ class MyCallbacks : public BLECharacteristicCallbacks
 
             Serial.println();
             Serial.println("*********");
-            String cmd = rxValue.c_str();
-            cmd.trim();
-            cmd.toUpperCase();
-            handleCommand(cmd);
-            delay(10);
+
+            receive_buffer += rxValue.c_str();
+
+            if (receive_buffer.endsWith("\n"))
+            {
+                receive_buffer.trim();
+                receive_buffer.toUpperCase();
+                Serial.println("Received command: " + receive_buffer);
+                handleCommand(receive_buffer);
+                receive_buffer.remove(0, receive_buffer.length());
+            }
         }
+
+        delay(10);
     }
 };
 
