@@ -2,8 +2,22 @@
 #define MODEM_H
 
 #include <Arduino.h>
+#include <RH_RF95.h>
 
-#define VERSION "0.5"
+#define VERSION "0.5.1"
+
+// Change to 434.0 or other frequency, must match RX's freq!
+#define RF95_FREQ 868.1
+//#define RF95_FREQ 434.0
+
+// Singleton configuration struct
+struct RF95ModemConfig
+{
+    RH_RF95::ModemConfigChoice modem_config;
+    float frequency;
+    byte rx_listen;
+    byte big_ble_frames;
+};
 
 void out_print(String text);
 void out_println(String text);

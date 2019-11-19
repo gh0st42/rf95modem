@@ -32,6 +32,7 @@ class MyServerCallbacks : public BLEServerCallbacks
         deviceConnected = false;
     }
 };
+extern struct RF95ModemConfig conf;
 
 class MyCallbacks : public BLECharacteristicCallbacks
 {
@@ -42,20 +43,23 @@ class MyCallbacks : public BLECharacteristicCallbacks
         if (rxValue.length() > 0)
         {
             Serial.println("*********");
-            Serial.print("Received Value: ");
+            Serial.print("BLE Received Value: ");
             for (int i = 0; i < rxValue.length(); i++)
+            {
                 Serial.print(rxValue[i]);
+                rxValue[i] = ::toupper(rxValue[i]);
+            }
 
             Serial.println();
             Serial.println("*********");
 
             receive_buffer += rxValue.c_str();
 
-            if (receive_buffer.endsWith("\n"))
+            // Hack to allow BLE devices to activate single big BLE frames without sending a newline
+            if (receive_buffer.endsWith("\n") || receive_buffer == "AT+BFB=1" || conf.big_ble_frames == 1)
             {
                 receive_buffer.trim();
-                receive_buffer.toUpperCase();
-                Serial.println("Received command: " + receive_buffer);
+                Serial.println("BLE Received command: " + receive_buffer);
                 handleCommand(receive_buffer);
                 receive_buffer.remove(0, receive_buffer.length());
             }

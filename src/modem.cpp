@@ -22,21 +22,10 @@ SSD1306 display(OLED_ADDRESS, OLED_SDA, OLED_SCL);
 OLEDDisplayUi ui(&display);
 #endif // USE_DISPLAY
 
-// Change to 434.0 or other frequency, must match RX's freq!
-#define RF95_FREQ 868.1
-//#define RF95_FREQ 434.0
-
 // Singleton instance of the radio driver
 RH_RF95 rf95(RFM95_CS, RFM95_INT);
 
-// Singleton configuration struct
-struct RF95ModemConfig
-{
-    RH_RF95::ModemConfigChoice modem_config;
-    float frequency;
-    byte rx_listen;
-    byte big_ble_frames;
-} conf = {RH_RF95::Bw125Cr45Sf128, RF95_FREQ, 1, 0};
+struct RF95ModemConfig conf = {RH_RF95::Bw125Cr45Sf128, RF95_FREQ, 1, 0};
 
 void out_print(String text)
 {
@@ -251,7 +240,7 @@ void handleCommand(String input)
 #ifdef USE_BLE
     else if (input.startsWith("AT+BFB="))
     {
-        int number = input.substring(6).toInt();
+        int number = input.substring(7).toInt();
         if (number == 0 || number == 1)
         {
             conf.big_ble_frames = (byte)number;
