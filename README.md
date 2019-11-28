@@ -19,15 +19,25 @@ Currently anyone can connect to the BLE service, it is all plaintext. One charac
 
 All commands sent via BLE must be terminated with an `\n`. Default mode of operation is splitting everything into 20 byte chunks, which - according to the BLE specs - is the maximum packet size. On iPhone 8 & 11 we were also able to send and receive much larger BLE packets (>100bytes). Therefore, one can activate *Big Funky BLE-Frames* mode via `AT+BFB=1`. The command is recognized even without trailing `\n` and also makes `\n` optional. This is especially useful as some BLE debugging software such as *LightBlue Explorer* does not send carriage returns or line feeds at the end of a write operation.
 
-## WiFi notes - Experimental LoRa modem via UDP Broadcasts!
+## WiFi notes - Experimental LoRa modem via TCP and UDP!
 
 If one of the WiFi profiles is installed on a compatible ESP MCU the device can act as an access point. 
 The credentials are configured in `platformio.ini` and are by default set to: `WIFI_SSID=\"rf95modem\"` and `WIFI_PSK=\"rf95modemwifi\"`
 This access point accepts up to 4 clients according to espressif sdk and by default has the IP `192.168.4.1`. 
+
+There are two ways to communicate with the modem:
+
+### UDP Broadcasts
+
 The rf95modem responds to UDP broadcast packets to port `1666`.
 To receive output a simple udp listener is provided (`extras/udp_receiver.py`). 
 For sending commands to the modem netcat is sufficient, e.g. `echo "at+tx=414141" | ncat -u 192.168.4.255 1666`
 
+### Single TCP Connection
+
+Just connect to `192.168.4.1` on port `1666` using TCP and use it like a serial connection, e.g. `ncat 192.168.4.1 1666`. 
+
+**Only one connection at a time is supported!**
 
 ## Modem Usage
 
