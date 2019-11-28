@@ -1,5 +1,5 @@
 # rf95modem MCU firmware
-This project provides a modem firmware for arduino boards with a rf95 compatible radio module and a serial interface such as the adafruit feather m0 lora device or the heltec oled lora 32 modules. This branch requires a BLE capable device such as the heltec ESP32 lora boards.
+This project provides a modem firmware for arduino boards with a rf95 compatible radio module and a serial interface such as the adafruit feather m0 lora device or the heltec oled lora 32 modules. On various ESP32 based boards optional features such as OLED status display, BLE or WiFi support can be enabled.
 
 The current default config is for device with 868.1 MHz. The default can be changed in `src/modem.h` with the following line: `#define RF95_FREQ 868.1`
 
@@ -18,6 +18,16 @@ Optionally activate display support: `pio run -t upload -e heltec_wifi_lora_32_d
 Currently anyone can connect to the BLE service, it is all plaintext. One characteristic is published for sending commands and one is there to make output available via notifications. 
 
 All commands sent via BLE must be terminated with an `\n`. Default mode of operation is splitting everything into 20 byte chunks, which - according to the BLE specs - is the maximum packet size. On iPhone 8 & 11 we were also able to send and receive much larger BLE packets (>100bytes). Therefore, one can activate *Big Funky BLE-Frames* mode via `AT+BFB=1`. The command is recognized even without trailing `\n` and also makes `\n` optional. This is especially useful as some BLE debugging software such as *LightBlue Explorer* does not send carriage returns or line feeds at the end of a write operation.
+
+## WiFi notes - Experimental LoRa modem via UDP Broadcasts!
+
+If one of the WiFi profiles is installed on a compatible ESP MCU the device can act as an access point. 
+The credentials are configured in `platformio.ini` and are by default set to: `WIFI_SSID=\"rf95modem\"` and `WIFI_PSK=\"rf95modemwifi\"`
+This access point accepts up to 4 clients according to espressif sdk and by default has the IP `192.168.4.1`. 
+The rf95modem responds to UDP broadcast packets to port `1666`.
+To receive output a simple udp listener is provided (`extras/udp_receiver.py`). 
+For sending commands to the modem netcat is sufficient, e.g. `echo "at+tx=414141" | ncat -u 192.168.4.255 1666`
+
 
 ## Modem Usage
 

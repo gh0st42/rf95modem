@@ -6,6 +6,10 @@
 #include "ble.h"
 #endif
 
+#ifdef USE_WIFI
+#include "wifi_mode.h"
+#endif
+
 #include "modem.h"
 
 void setup()
@@ -22,6 +26,10 @@ void setup()
 #ifdef USE_BLE
   init_ble();
 #endif
+#ifdef USE_WIFI
+  init_wifi();
+#endif
+
   out_println("rf95modem firmware (v" + String(VERSION) + ")");
   out_println("Copyright (c) 2018, 2019 Lars Baumgaertner");
 
@@ -39,5 +47,8 @@ void loop()
   modem_loop_tick();
 #ifdef USE_BLE
   ble_loop_tick();
+#endif
+#ifdef USE_WIFI
+  wifi_loop_tick();
 #endif
 }

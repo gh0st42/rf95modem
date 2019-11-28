@@ -12,6 +12,10 @@
 #include <OLEDDisplayUi.h>
 #endif // USE_DISPLAY
 
+#ifdef USE_WIFI
+#include "wifi_mode.h"
+#endif
+
 #ifdef USE_BLE
 #include "ble.h"
 #endif
@@ -32,6 +36,9 @@ void out_print(String text)
     Serial.print(text);
 #ifdef USE_BLE
     ble_print(text, conf.big_ble_frames);
+#endif
+#ifdef USE_WIFI
+    wifi_print(text);
 #endif
 }
 void out_println(String text)
@@ -287,36 +294,36 @@ void handleCommand(String input)
     }
     else if (input.startsWith("AT+INFO"))
     {
-        Serial.println("+STATUS:");
-        Serial.println();
-        Serial.println("firmware:      " + String(VERSION));
-        Serial.print("modem config:  ");
-        Serial.print(String(conf.modem_config) + " | ");
+        out_println("+STATUS:");
+        out_println("");
+        out_println("firmware:      " + String(VERSION));
+        out_print("modem config:  ");
+        out_print(String(conf.modem_config) + " | ");
         switch (conf.modem_config)
         {
         case RH_RF95::Bw125Cr45Sf128:
-            Serial.println("medium range");
+            out_println("medium range");
             break;
         case RH_RF95::Bw125Cr48Sf4096:
-            Serial.println("slow+long range");
+            out_println("slow+long range");
             break;
         case RH_RF95::Bw31_25Cr48Sf512:
-            Serial.println("slow+long range");
+            out_println("slow+long range");
             break;
         case RH_RF95::Bw500Cr45Sf128:
-            Serial.println("fast+short range");
+            out_println("fast+short range");
             break;
         default:
-            Serial.println("unknown modem config!");
+            out_println("unknown modem config!");
         }
-        Serial.println("max pkt size:  " + String(rf95.maxMessageLength()));
-        Serial.println("frequency:     " + String(conf.frequency));
-        Serial.println("rx listener:   " + String(conf.rx_listen));
-        Serial.println("BFB:           " + String(conf.big_ble_frames));
-        Serial.println();
-        Serial.println("rx bad:        " + String(rf95.rxBad()));
-        Serial.println("rx good:       " + String(rf95.rxGood()));
-        Serial.println("tx good:       " + String(rf95.txGood()));
+        out_println("max pkt size:  " + String(rf95.maxMessageLength()));
+        out_println("frequency:     " + String(conf.frequency));
+        out_println("rx listener:   " + String(conf.rx_listen));
+        out_println("BFB:           " + String(conf.big_ble_frames));
+        out_println("");
+        out_println("rx bad:        " + String(rf95.rxBad()));
+        out_println("rx good:       " + String(rf95.rxGood()));
+        out_println("tx good:       " + String(rf95.txGood()));
         //rf95.printRegisters();
         out_println("+OK");
     }
