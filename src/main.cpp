@@ -10,6 +10,10 @@
 #include "wifi_mode.h"
 #endif
 
+#ifdef USE_GPS
+#include "gps.h"
+#endif
+
 #include "modem.h"
 
 void setup()
@@ -26,8 +30,13 @@ void setup()
 #ifdef USE_BLE
   init_ble();
 #endif
+
 #ifdef USE_WIFI
   init_wifi();
+#endif
+
+#ifdef USE_GPS
+  init_gps();
 #endif
 
   out_println("rf95modem firmware (v" + String(VERSION) + ")");
@@ -48,7 +57,12 @@ void loop()
 #ifdef USE_BLE
   ble_loop_tick();
 #endif
+
 #ifdef USE_WIFI
   wifi_loop_tick();
+#endif
+
+#ifdef USE_GPS
+  gps_loop_tick();
 #endif
 }

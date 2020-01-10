@@ -20,6 +20,10 @@
 #include "ble.h"
 #endif
 
+#ifdef USE_GPS
+#include "gps.h"
+#endif
+
 #ifdef USE_DISPLAY
 // Singleton for display connection
 SSD1306 display(OLED_ADDRESS, OLED_SDA, OLED_SCL);
@@ -259,6 +263,26 @@ void handleCommand(String input)
         }
     }
 #endif
+#ifdef USE_GPS
+    else if (input.startsWith("AT+GPS="))
+    {
+        int number = input.substring(7).toInt();
+        if (number == 0 || number == 1)
+        {
+            power_gps(number);
+            out_println("+OK");
+        }
+        else
+        {
+            out_println("+FAIL: Invalid GPS mode!");
+        }
+    }
+    else if (input.equals("AT+GPS"))
+    {
+        print_gps();
+    }
+#endif
+
     else if (input.startsWith("AT+FREQ="))
     {
         conf.frequency = input.substring(8).toFloat();
@@ -275,12 +299,16 @@ void handleCommand(String input)
         out_println("+HELP:");
         out_println("AT+HELP             Print this usage information.");
         out_println("AT+TX=<hexdata>     Send binary data.");
-        out_println("AT+RX=<0|1>         Turn receiving on (1) or off (2).");
+        out_println("AT+RX=<0|1>         Turn receiving on (1) or off (0).");
 #ifdef USE_BLE
-        out_println("AT+BFB=<0|1>        Turn send Big Fine BLE-Frames on (1) or off (2).");
+        out_println("AT+BFB=<0|1>        Turn send Big Fine BLE-Frames on (1) or off (0).");
+#endif
+#ifdef USE_GPS
+        out_println("AT+GPS              Print GPS information.");
+        out_println("AT+GPS=<0|1>        Turn GPS power on (1) or off (0).");
 #endif
         out_println("AT+FREQ=<freq>      Changes the frequency.");
-        out_println("AT+INFO             Output status information.");
+        out_println("AT+INFO             Print status information.");
         out_println("AT+MODE=<NUM>       Set modem config:");
         out_println("                    " + String(RH_RF95::Bw125Cr45Sf128) + " - medium range (default)");
         out_println("                     Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on.");
@@ -319,7 +347,12 @@ void handleCommand(String input)
         out_println("max pkt size:  " + String(rf95.maxMessageLength()));
         out_println("frequency:     " + String(conf.frequency));
         out_println("rx listener:   " + String(conf.rx_listen));
+#ifdef USE_BLE
         out_println("BFB:           " + String(conf.big_ble_frames));
+#endif
+#ifdef USE_GPS
+        out_println("GPS:           " + String(gps_enabled()));
+#endif
         out_println("");
         out_println("rx bad:        " + String(rf95.rxBad()));
         out_println("rx good:       " + String(rf95.rxGood()));
