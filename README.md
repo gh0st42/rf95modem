@@ -39,7 +39,7 @@ Just connect to `192.168.4.1` on port `1666` using TCP and use it like a serial 
 
 **Only one connection at a time is supported!**
 
-### GPS Support 
+## GPS Support 
 
 Some devices such as TTGOs t-beam also include a GPS chip. 
 This can also be queried through the modem firmware through the `AT+GPS` command. 
