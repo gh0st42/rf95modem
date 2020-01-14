@@ -39,6 +39,13 @@ Just connect to `192.168.4.1` on port `1666` using TCP and use it like a serial 
 
 **Only one connection at a time is supported!**
 
+### GPS Support 
+
+Some devices such as TTGOs t-beam also include a GPS chip. 
+This can also be queried through the modem firmware through the `AT+GPS` command. 
+Getting an initial lock for your position can take several minutes depending on your atenna, position and the GPS chip on the device. 
+As this also increases energy consumption significantly (~50mA) one can temporarily disable it via `AT+GPS=0`.
+
 ## Modem Usage
 
 The default serial speed is set to 115200 (`src/main.cpp` *line 17*).
