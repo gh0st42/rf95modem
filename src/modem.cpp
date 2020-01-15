@@ -2,7 +2,11 @@
 
 #include <Arduino.h>
 
+#ifndef DESKTOP
 #include <SPI.h>
+#endif
+
+#include <RH_RF69.h>
 #include <RH_RF95.h>
 
 #include "modem.h"
@@ -30,14 +34,23 @@ SSD1306 display(OLED_ADDRESS, OLED_SDA, OLED_SCL);
 OLEDDisplayUi ui(&display);
 #endif // USE_DISPLAY
 
+#ifdef DESKTOP
+#include "RasPiBoards.h"
+RH_RF95 rf95(RF_CS_PIN, RF_IRQ_PIN);
+#else
 // Singleton instance of the radio driver
 RH_RF95 rf95(RFM95_CS, RFM95_INT);
+#endif
 
 struct RF95ModemConfig conf = {RH_RF95::Bw125Cr45Sf128, RF95_FREQ, 1, 0};
 
 void out_print(String text)
 {
+#ifdef DESKTOP
+    printf("%s", text.c_str());
+#else
     Serial.print(text);
+#endif
 #ifdef USE_BLE
     ble_print(text, conf.big_ble_frames);
 #endif
@@ -55,13 +68,15 @@ void modem_setup()
     pinMode(RFM95_RST, OUTPUT);
     digitalWrite(RFM95_RST, HIGH);
 }
-void initRF95()
+void init_RF95()
 {
+#ifndef DESKTOP
     // manual reset
     digitalWrite(RFM95_RST, LOW);
     delay(10);
     digitalWrite(RFM95_RST, HIGH);
     delay(10);
+#endif
 
     if (!rf95.init())
     {
@@ -87,10 +102,12 @@ void initRF95()
     // If you are using RFM95/96/97/98 modules which uses the PA_BOOST transmitter pin, then
     // you can set transmitter powers from 5 to 23 dBm:
     rf95.setTxPower(23, false);
+
+    rf95.setModeRx();
 }
 
 #ifdef USE_DISPLAY
-void initDisplay()
+void init_display()
 {
     pinMode(OLED_RST, OUTPUT);
     digitalWrite(OLED_RST, LOW);
@@ -105,7 +122,7 @@ void initDisplay()
     display.clear();
 }
 
-void printDisplay()
+void print_display()
 {
     String modeStr;
     switch (conf.modem_config)
@@ -144,10 +161,14 @@ void printDisplay()
 }
 #endif // USE_DISPLAY
 
-void onpacketreceived(uint8_t *buf, uint8_t len)
+void on_packet_received(uint8_t *buf, uint8_t len)
 {
     int lastRssi = rf95.lastRssi();
+#ifdef DESKTOP
+    int lastSNR = 255;
+#else
     int lastSNR = rf95.lastSNR();
+#endif
     String output = "+RX ";
     output += String(len, DEC);
     output += ",";
@@ -167,10 +188,10 @@ void onpacketreceived(uint8_t *buf, uint8_t len)
     out_println(output);
 
 #ifdef USE_DISPLAY
-    printDisplay();
+    print_display();
 #endif // USE_DISPLAY
 }
-void handleCommand(String input)
+void handle_command(String input)
 {
     if (input.startsWith("AT+TX="))
     {
@@ -222,7 +243,7 @@ void handleCommand(String input)
         out_println(output);
 
 #ifdef USE_DISPLAY
-        printDisplay();
+        print_display();
 #endif // USE_DISPLAY
     }
     else if (input.startsWith("AT+MODE="))
@@ -232,7 +253,7 @@ void handleCommand(String input)
         rf95.setModemConfig(conf.modem_config);
         out_println("+OK");
 #ifdef USE_DISPLAY
-        printDisplay();
+        print_display();
 #endif // USE_DISPLAY
     }
     else if (input.startsWith("AT+RX="))
@@ -288,10 +309,10 @@ void handleCommand(String input)
         conf.frequency = input.substring(8).toFloat();
 
         // Reinitialize the RF95 to use the new frequency
-        initRF95();
+        init_RF95();
 
 #ifdef USE_DISPLAY
-        printDisplay();
+        print_display();
 #endif // USE_DISPLAY
     }
     else if (input.startsWith("AT+HELP"))
@@ -369,15 +390,8 @@ void handleCommand(String input)
 }
 #define MAX_COMMAND_LEN 512
 
-void modem_loop_tick()
+void modem_receive()
 {
-    if (Serial.available())
-    {
-        String input = Serial.readStringUntil('\n');
-        input.trim();
-        input.toUpperCase();
-        handleCommand(input);
-    }
     if (conf.rx_listen == 1 && rf95.available())
     {
         // Should be a message for us now
@@ -390,7 +404,7 @@ void modem_loop_tick()
             digitalWrite(LED, HIGH);
 #endif // LED
 
-            onpacketreceived(buf, len);
+            on_packet_received(buf, len);
             delay(10);
 
 #ifdef LED
@@ -402,4 +416,17 @@ void modem_loop_tick()
             out_println("+RX failed");
         }
     }
+}
+void modem_loop_tick()
+{
+#ifndef DESKTOP
+    if (Serial.available())
+    {
+        String input = Serial.readStringUntil('\n');
+        input.trim();
+        input.toUpperCase();
+        handle_command(input);
+    }
+#endif
+    modem_receive();
 }

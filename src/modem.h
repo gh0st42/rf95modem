@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include <RH_RF95.h>
 
-#define VERSION "0.7.0"
+#define VERSION "0.7.1"
 
 // Change to 434.0 or other frequency, must match RX's freq!
 #define RF95_FREQ 868.1
@@ -23,11 +23,12 @@ void out_print(String text);
 void out_println(String text);
 
 void modem_setup();
-void initRF95();
-void handleCommand(String input);
-void onpacketreceived(uint8_t *buf, uint8_t len);
+void init_RF95();
+void handle_command(String input);
+void on_packet_received(uint8_t *buf, uint8_t len);
 void modem_loop_tick();
-void initDisplay();
-void printDisplay();
+void init_display();
+void print_display();
+void modem_receive();
 
 #endif

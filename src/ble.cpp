@@ -60,7 +60,7 @@ class MyCallbacks : public BLECharacteristicCallbacks
             {
                 receive_buffer.trim();
                 Serial.println("BLE Received command: " + receive_buffer);
-                handleCommand(receive_buffer);
+                handle_command(receive_buffer);
                 receive_buffer.remove(0, receive_buffer.length());
             }
         }

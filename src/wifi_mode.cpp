@@ -82,7 +82,7 @@ void wifi_loop_tick()
         cmd.trim();
         cmd.toUpperCase();
         Serial.println("WiFi Received command: " + cmd);
-        handleCommand(cmd);
+        handle_command(cmd);
     }
     if (tcp_client_connection.connected() && tcp_client_connection.available())
     {
@@ -94,7 +94,7 @@ void wifi_loop_tick()
             tcp_receive_buffer.trim();
             tcp_receive_buffer.toUpperCase();
             Serial.println("TCP Received command: " + tcp_receive_buffer);
-            handleCommand(tcp_receive_buffer);
+            handle_command(tcp_receive_buffer);
             tcp_receive_buffer.remove(0, tcp_receive_buffer.length());
         }
     }

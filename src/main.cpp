@@ -18,6 +18,7 @@
 
 void setup()
 {
+#ifndef DESKTOP
 #ifdef LED
   pinMode(LED, OUTPUT);
 #endif // LED
@@ -26,6 +27,7 @@ void setup()
   //Serial.begin(9600);
   delay(100);
   Serial.setTimeout(2000);
+#endif
 
 #ifdef USE_BLE
   init_ble();
@@ -43,11 +45,11 @@ void setup()
   out_println("Copyright (c) 2018, 2019 Lars Baumgaertner");
 
   modem_setup();
-  initRF95();
+  init_RF95();
   out_println("LoRa radio init OK!");
 #ifdef USE_DISPLAY
-  initDisplay();
-  printDisplay();
+  init_display();
+  print_display();
 #endif // USE_DISPLAY
 }
 
