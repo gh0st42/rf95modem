@@ -346,6 +346,25 @@ void handle_command(String input)
         out_println("+STATUS:");
         out_println("");
         out_println("firmware:      " + String(VERSION));
+        out_print("features:      ");
+#ifdef DESKTOP
+        out_print("DESKTOP ");
+#else
+        out_print("MCU ");
+#endif
+#ifdef USE_DISPLAY
+        out_print("DISPLAY ");
+#endif
+#ifdef USE_BLE
+        out_print("BLE ");
+#endif
+#ifdef USE_WIFI
+        out_print("WIFI ");
+#endif
+#ifdef USE_GPS
+        out_print("GPS ");
+#endif
+        out_println(" ");
         out_print("modem config:  ");
         out_print(String(conf.modem_config) + " | ");
         switch (conf.modem_config)

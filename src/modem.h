@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include <RH_RF95.h>
 
-#define VERSION "0.7.1"
+#define VERSION "0.7.2"
 
 // Change to 434.0 or other frequency, must match RX's freq!
 #define RF95_FREQ 868.1
