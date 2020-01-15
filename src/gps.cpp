@@ -52,6 +52,10 @@ bool gps_enabled()
 {
     return axp.isLDO3Enable();
 }
+#define PAD(X, STR) \
+    if (X < 10)     \
+    out_print(STR)
+
 void print_gps()
 {
     if (gps.charsProcessed() < 10)
@@ -68,8 +72,10 @@ void print_gps()
     t.tm_year = gps.date.year() - 1900; // 1990-1900, not 1990!
     t.tm_isdst = -1;
     out_print("Latitude  : ");
+    PAD(gps.location.lat(), " ");
     out_println(String(gps.location.lat(), 5));
     out_print("Longitude : ");
+    PAD(gps.location.lng(), " ");
     out_println(String(gps.location.lng(), 5));
     out_print("Altitude  : ");
     out_print(String(gps.altitude.meters()));
@@ -77,14 +83,19 @@ void print_gps()
     out_print("Satellites: ");
     out_println(String(gps.satellites.value()));
     out_print("Time      : ");
+    PAD(gps.time.hour(), "0");
     out_print(String(gps.time.hour()));
     out_print(":");
+    PAD(gps.time.minute(), "0");
     out_print(String(gps.time.minute()));
     out_print(":");
+    PAD(gps.time.second(), "0");
     out_println(String(gps.time.second()));
     out_print("Date      : ");
+    PAD(gps.date.day(), "0");
     out_print(String(gps.date.day()));
     out_print(".");
+    PAD(gps.date.month(), "0");
     out_print(String(gps.date.month()));
     out_print(".");
     out_println(String(gps.date.year()));
