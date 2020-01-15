@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <TinyGPS++.h>
 #include <axp20x.h>
+#include <time.h>
 
 #include "modem.h"
 #include "gps.h"
@@ -58,21 +59,37 @@ void print_gps()
         out_println("+FAIL: No GPS data received: check wiring");
         return;
     }
+    tm t;
+    t.tm_sec = gps.time.second();
+    t.tm_min = gps.time.minute();
+    t.tm_hour = gps.time.hour();
+    t.tm_mday = gps.date.day();
+    t.tm_mon = gps.date.month() - 1;    // 2-1, not 2!
+    t.tm_year = gps.date.year() - 1900; // 1990-1900, not 1990!
+    t.tm_isdst = -1;
     out_print("Latitude  : ");
     out_println(String(gps.location.lat(), 5));
     out_print("Longitude : ");
-    out_println(String(gps.location.lng(), 4));
+    out_println(String(gps.location.lng(), 5));
+    out_print("Altitude  : ");
+    out_print(String(gps.altitude.meters()));
+    out_println("M");
     out_print("Satellites: ");
     out_println(String(gps.satellites.value()));
-    out_print("Altitude  : ");
-    out_print(String(gps.altitude.feet() / 3.2808));
-    out_println("M");
     out_print("Time      : ");
     out_print(String(gps.time.hour()));
     out_print(":");
     out_print(String(gps.time.minute()));
     out_print(":");
     out_println(String(gps.time.second()));
+    out_print("Date      : ");
+    out_print(String(gps.date.day()));
+    out_print(".");
+    out_print(String(gps.date.month()));
+    out_print(".");
+    out_println(String(gps.date.year()));
+    out_print("Timestamp : ");
+    out_println(String(mktime(&t)));
     out_println("+OK");
 }
 
