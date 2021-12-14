@@ -12,8 +12,8 @@
 #include "modem.h"
 
 #ifdef USE_DISPLAY
-#include <SSD1306.h>
 #include <OLEDDisplayUi.h>
+#include <SSD1306.h>
 #endif // USE_DISPLAY
 
 #ifdef USE_WIFI

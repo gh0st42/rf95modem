@@ -3,9 +3,9 @@
 #ifdef USE_WIFI
 #include <Arduino.h>
 #include <WiFi.h>
-#include <WiFiUdp.h>
-#include <WiFiServer.h>
 #include <WiFiClient.h>
+#include <WiFiServer.h>
+#include <WiFiUdp.h>
 
 #include "modem.h"
 
