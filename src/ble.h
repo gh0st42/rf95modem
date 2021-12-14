@@ -1,6 +1,7 @@
 #ifndef _BLE_H
 #define _BLE_H
 
+#include <Arduino.h>
 #include <BLE2902.h>
 #include <BLEDevice.h>
 #include <BLEServer.h>
