@@ -1,4 +1,4 @@
-// Copyright (c) 2018 Lars Baumgaertner
+// Copyright (c) 2018-2021 Lars Baumgaertner
 
 #include <Arduino.h>
 
@@ -93,7 +93,7 @@ void init_RF95()
             ;
     }
     out_print("+FREQ: ");
-    out_println(String(conf.frequency));
+    out_println(String(conf.frequency, 2));
 
     // Defaults after init are 868.1MHz, 13dBm, Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on
     rf95.setModemConfig(conf.modem_config);
@@ -212,7 +212,8 @@ void handle_command(String input)
         }
         //Serial.println(plen);
         //Serial.println(blen);
-        auto getNum = [](char c) {
+        auto getNum = [](char c)
+        {
             return c > '9' ? c - 'a' + 10 : c - '0';
         };
         uint8_t buf[blen];
