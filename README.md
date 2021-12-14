@@ -1,13 +1,14 @@
 # rf95modem MCU firmware
-This project provides a modem firmware for arduino boards with a rf95 compatible radio module and a serial interface such as the adafruit feather m0 lora device or the heltec oled lora 32 modules. On various ESP32 based boards optional features such as OLED status display, BLE or WiFi support can be enabled.
+This project provides a modem firmware for microcontroller boards with a RF95 compatible radio module and a serial interface such as the adafruit feather m0 lora device or the heltec oled lora 32 modules. On various ESP32 based boards optional features such as OLED status display, GPS, BLE or WiFi support can be enabled.
 
-The current default config is for device with 868.1 MHz. The default can be changed in `src/modem.h` with the following line: `#define RF95_FREQ 868.1`
+The current default config is for device with 868.1 MHz. 
+This can be changed in `src/modem.h` with the following line: `#define RF95_FREQ 868.1`
 
 ## Installation 
 
 The recommended way for building and installing the radio firmware is to have a working installation of platformio (http://platformio.org/) on your system.
 
-*IMPORTANT* Edit platformio.ini to add your target platform and configure the radio pins in the build flags!
+*IMPORTANT* Edit `platformio.ini` to add your target platform and configure the radio pins in the build flags!
 
 Install on your device using `pio run -t upload -e heltec_wifi_lora_32_ble`
 
@@ -55,6 +56,9 @@ List of commands:
 AT+HELP             Print this usage information.
 AT+TX=<hexdata>     Send binary data.
 AT+RX=<0|1>         Turn receiving on (1) or off (2).
+AT+BFB=<0|1>        Turn send Big Fine BLE-Frames on (1) or off (0).
+AT+GPS              Print GPS information.
+AT+GPS=<0|1>        Turn GPS power on (1) or off (0).
 AT+FREQ=<freq>      Changes the frequency.
 AT+INFO             Output status information.
 AT+MODE=<NUM>       Set modem config:
@@ -68,6 +72,47 @@ AT+MODE=<NUM>       Set modem config:
                      Bw = 125 kHz, Cr = 4/8, Sf = 4096chips/symbol, CRC on.
 ```
 
+### Configuring the Modem
+
+To get the current configuration one can use `AT+INFO`
+
+```
+> AT+INFO
++STATUS:
+
+firmware:      0.7.3
+features:      MCU BLE WIFI GPS
+modem config:  0 | medium range
+max pkt size:  251
+frequency:     868.10
+rx listener:   1
+BFB:           0
+GPS:           1
+
+rx bad:        0
+rx good:       0
+tx good:       0
++OK
+```
+
+From this output you can see which features where compiled into the firmware and what its version is. 
+Also the current modem configuration and the frequency selected are displayed.
+
+To change frequencies on can use the `AT+FREQ` command.
+
+```
+> AT+FREQ=868.20
++FREQ: 868.20
+```
+
+Beware: Any float number can be added here, the value is directly passed to the LoRa transceiver!
+
+Changing the preconfigured modem mode is just as easy:
+```
+> AT+MODE=2
++OK
+```
+
 ### Sending data
 
 `AT+TX=414141` sends a packet with `AAA` as content. Maximum packet size may vary depending on radio chip. 
@@ -78,21 +123,23 @@ AT+MODE=<NUM>       Set modem config:
 
 Incoming data is automatically written to serial port: `+RX 3,414141,-15,8` - A frame with "AAA" as payload was received with RSSI of -15 and SNR of 8.
 
-### Getting status information
+### Getting the Location
 
-`AT+INFO` displays various status information such as current configuration, frequency and version of radio modem firmware. Output looks like the following:
+If GPS is activated (`AT+GPS=1`) and the firmware is running on a GPS-capable device such as the TTGO t-beam, one can easily query the current location and time.
+Without a propoer GPS lock all values returned are set to zero.
+
 ```
-status info:
-
-firmware:      0.1
-modem config:  medium range
-max pkt size:  251
-frequency:     433.00
-rx listener:   1
-
-rx bad:        0
-rx good:       0
-tx good:       3
+> at+gps=1
++OK
+> at+gps
+Latitude  :  0.00000
+Longitude :  0.00000
+Altitude  : 0.00M
+Satellites: 0
+Time      : 00:00:00
+Date      : 00.00.2000
+Timestamp : 943920000
++OK
 ```
 
 ### Acknowledging this work
