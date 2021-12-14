@@ -6,8 +6,8 @@
 #include <axp20x.h>
 #include <time.h>
 
-#include "modem.h"
 #include "gps.h"
+#include "modem.h"
 
 TinyGPSPlus gps;
 HardwareSerial GPS1(1);
