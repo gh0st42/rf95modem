@@ -340,6 +340,8 @@ void handle_command(String input)
         out_println("                     Bw = 31.25 kHz, Cr = 4/8, Sf = 512chips/symbol, CRC on.");
         out_println("                    " + String(RH_RF95::Bw125Cr48Sf4096) + " - slow+long range");
         out_println("                     Bw = 125 kHz, Cr = 4/8, Sf = 4096chips/symbol, CRC on.");
+        out_println("                    " + String(RH_RF95::Bw125Cr45Sf2048) + " - slow+long range");
+        out_println("                     Bw = 125 kHz, Cr = 4/5, Sf = 2048chips/symbol, CRC on.");
         out_println("+OK");
     }
     else if (input.startsWith("AT+INFO"))
