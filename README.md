@@ -70,6 +70,8 @@ AT+MODE=<NUM>       Set modem config:
                      Bw = 31.25 kHz, Cr = 4/8, Sf = 512chips/symbol, CRC on.
                     3 - slow+long range
                      Bw = 125 kHz, Cr = 4/8, Sf = 4096chips/symbol, CRC on.
+                    4 - slow+long range
+                     Bw = 125 kHz, Cr = 4/5, Sf = 2048chips/symbol, CRC on.
 ```
 
 ### Configuring the Modem
