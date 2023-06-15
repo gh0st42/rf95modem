@@ -37,4 +37,4 @@ jobs:
         python -m pip install --upgrade pip
         pip install --upgrade platformio
     - name: Run PlatformIO
-      run: pio run -e heltec_wifi_lora_32_display_ble_wifi -e t_beam_v10_ble_wifi -e adafruit_feather_m0 -e adafruit_feather32u4
+      run: pio run
