@@ -144,7 +144,15 @@ Timestamp : 943920000
 +OK
 ```
 
-### Acknowledging this work
+## Programming libraries
+
+There are a few third party programming libraries out there to ease the integration of rf95modem.
+
+- Go: <https://github.com/dtn7/rf95modem-go>
+- Python: <https://github.com/oxzi/rf95modem-py>
+- Rust: <https://github.com/gh0st42/rf95modem-rs>
+
+## Acknowledging this work
 
 If you use this code in academic publications, please cite the following paper:
 
