@@ -4,6 +4,11 @@ This project provides a modem firmware for microcontroller boards with a RF95 co
 The current default config is for device with 868.1 MHz. 
 This can be changed in `src/modem.h` with the following line: `#define RF95_FREQ 868.1`
 
+## Hardware
+
+The following boards are supported:
+* [Heltec WiFi LoRa 32](https://heltec.org/project/wifi-lora-32-v3/)
+
 ## Installation 
 
 The recommended way for building and installing the radio firmware is to have a working installation of platformio (http://platformio.org/) on your system.
