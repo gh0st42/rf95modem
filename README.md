@@ -8,6 +8,10 @@ This can be changed in `src/modem.h` with the following line: `#define RF95_FREQ
 
 The following boards are supported:
 * [Heltec WiFi LoRa 32](https://heltec.org/project/wifi-lora-32-v3/)
+* [Heltec/LILYGO TTGO T-Beam Devices (v0.7, v1.0)](https://meshtastic.org/docs/hardware/devices/tbeam)
+* TTGO T-FOX (LORA v1.2)
+* [Adafruit Feather M0](https://www.adafruit.com/search?q=Adafruit+Feather+M0)
+* [Adafruit Feather 32u4](https://www.adafruit.com/search?q=Adafruit+Feather+32u4)
 
 ## Installation 
 
